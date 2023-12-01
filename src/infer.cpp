@@ -12,9 +12,9 @@
 #include <string>
 #include <vector>
 
-#include "src/centernet.h"
-#include "src/centerutils.h"
-#include "src/config.h"
+#include "det/centernet.h"
+#include "det/centerutils.h"
+#include "det/config.h"
 
 using namespace centernet;
 
@@ -61,13 +61,14 @@ void printGpuInfo() {
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        std::cerr << "Usage: ./infer <img_path>";
+    if (argc != 3) {
+        std::cerr << "Usage: ./infer <engine_path> <img_path>";
         return -1;
     }
+    printGpuInfo();
 
-    CenterEngine center("./DroneVsBirds_centernetplus_r18.trt");
-    cv::Mat img = cv::imread(argv[1]);
+    CenterEngine center(argv[1]);
+    cv::Mat img = cv::imread(argv[2]);
     auto input = prepareImage(img);
 
     std::unique_ptr<float[]> output_data(new float[center.outputBufferSize()]);

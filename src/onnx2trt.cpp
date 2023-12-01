@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-#include "src/centerutils.h"
+#include "det/centerutils.h"
 
 void onnx2trt(const std::string& onnx_model,
               const std::string& save_engine_path,

@@ -7,6 +7,8 @@ set(CMAKE_CXX_FLAGS "-g -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
 
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+
 # opencv 
 find_package(OpenCV)
 message(STATUS " libraries: ${OpenCV_LIBS}")
@@ -19,16 +21,4 @@ message(STATUS " include path: ${CUDA_INCLUDE_DIRS}")
 include_directories(${CUDA_INCLUDE_DIRS})
 enable_language(CUDA) 
 
-add_executable(trans onnx2trt.cpp)
-add_executable(infer infer.cpp)
-cuda_add_library(det SHARED src/centernet.cpp src/centerutil.cpp src/postprocess.cu)
-
-target_link_libraries(infer det)
-
-target_link_libraries(trans ${CUDA_LIBRARIES})
-target_link_libraries(trans ${OpenCV_LIBS})
-target_link_libraries(trans nvinfer nvonnxparser)
-
-target_link_libraries(det ${CUDA_LIBRARIES})
-target_link_libraries(det ${OpenCV_LIBS})
-target_link_libraries(det nvinfer nvonnxparser)
+add_subdirectory(src)
