@@ -64,7 +64,6 @@ void CenterEngine::initEngine() {
 }
 
 void CenterEngine::infer(const void* in_data, void* out_data) {
-    const int max_batch_size = 1;
     int input_index = 0;
     util::CUDA_CHECK(cudaMemcpyAsync(cuda_buffers_[input_index], in_data,
                                      bind_buffer_sizes_[input_index], cudaMemcpyHostToDevice,
