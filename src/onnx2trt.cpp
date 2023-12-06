@@ -13,7 +13,7 @@ void onnx2trt(const std::string& onnx_model,
               const std::string& save_engine_path,
               int build_type = 1) {
     using namespace nvinfer1;
-    util::Logger logger;
+    centernet::util::Logger logger;
     std::unique_ptr<IBuilder> builder{createInferBuilder(logger)};
 
     std::unique_ptr<INetworkDefinition> network{builder->createNetworkV2(

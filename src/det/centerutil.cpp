@@ -3,6 +3,7 @@
 #include "centerutils.h"
 #include "config.h"
 
+namespace centernet {
 namespace util {
 
 void correctBox(std::vector<Detection>& results, const int img_w, const int img_h) {
@@ -45,3 +46,4 @@ void drawImg(const std::vector<Detection>& results,
     }
 }
 } // namespace util
+} // namespace centernet

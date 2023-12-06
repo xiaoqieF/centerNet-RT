@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+namespace centernet {
+
 namespace util {
 
 struct Box {
@@ -97,5 +99,6 @@ void drawImg(const std::vector<Detection>& results,
              const std::vector<cv::Scalar>& color);
 
 } // namespace util
+} // namespace centernet
 
 #endif // CENTERRT_UTIL_H
