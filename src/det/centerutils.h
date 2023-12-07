@@ -97,7 +97,6 @@ void correctBox(std::vector<Detection>& results, const int img_w, const int img_
 void drawImg(const std::vector<Detection>& results,
              cv::Mat& img,
              const std::vector<cv::Scalar>& color);
-
 } // namespace util
 } // namespace centernet
 

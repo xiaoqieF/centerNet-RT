@@ -12,7 +12,7 @@ BoTSORT::BoTSORT(const std::string& config_path) {
     buffer_size_ = static_cast<uint8_t>(frame_rate_ / 30.0 * track_buffer_);
     max_time_lost_ = buffer_size_;
     kalman_filter_ = std::make_unique<KalmanFilter>(static_cast<double>(1.0 / frame_rate_));
-    gmc_algo_ = GMCAlgorithm::createAlgo(gmc_name_, "./config/gmc.ini");
+    gmc_algo_ = GMCAlgorithm::createAlgo(gmc_name_, "../src/track/config/gmc.ini");
 }
 
 BoTSORT::STrackList BoTSORT::track(const std::vector<Detection>& detections, const cv::Mat& frame) {
@@ -32,8 +32,8 @@ BoTSORT::STrackList BoTSORT::track(const std::vector<Detection>& detections, con
     // 已确认的所有轨迹(包括暂时丢失的)都进行 Kalman 预测
     STrack::multiPredict(tracks_pool, *kalman_filter_);
     HomoGraphyMatrix H = gmc_algo_->apply(frame, detections);
-    STrack::multiGMC(tracks_pool, H);
-    STrack::multiGMC(unconfirmed_tracks, H);
+    // STrack::multiGMC(tracks_pool, H);
+    // STrack::multiGMC(unconfirmed_tracks, H);
 
     // 1. 对高分框和轨迹进行 iou 匹配
     // 将高分检测框 detection_high_conf 和 所有已确认的轨迹(确认的和暂时丢失的) tracks_pool 进行匹配

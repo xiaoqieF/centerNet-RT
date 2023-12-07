@@ -42,6 +42,29 @@ private:
     int ransac_max_iters_;
 };
 
+class SparseOptFlowGMC : public GMCAlgorithm {
+public:
+    explicit SparseOptFlowGMC(const std::string& config_path);
+    HomoGraphyMatrix apply(const cv::Mat& frame, const std::vector<Detection>& detections) override;
+
+private:
+    void loadParamsFromINI(const std::string& config_path);
+    std::string algo_name_ = "sparseOptFlow";
+    float downscale_;
+    bool first_frame_initialized_ = false;
+    cv::Mat prev_frame_;
+    std::vector<cv::Point2f> prev_keypoints_;
+    int max_corners_;
+    int block_size_;
+    int ransac_max_iters_;
+    double quality_level_;
+    double k_;
+    double min_distance_;
+    bool use_harris_detector_;
+    float inlier_ratio_;
+    float ransac_conf_;
+};
+
 } // namespace botsort
 
 #endif
