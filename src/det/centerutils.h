@@ -1,5 +1,5 @@
-#ifndef CENTERRT_CENTERUTIL_H
-#define CENTERRT_CENTERUTIL_H
+#ifndef CENTERRT_DET_CENTERUTIL_H
+#define CENTERRT_DET_CENTERUTIL_H
 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -13,22 +13,11 @@
 #include <string>
 #include <vector>
 
+#include "common/datatype.h"
+
 namespace centernet {
 
 namespace util {
-
-struct Box {
-    float x1;
-    float y1;
-    float x2;
-    float y2;
-};
-
-struct Detection {
-    Box box;
-    int class_id;
-    float prob;
-};
 
 inline void CUDA_CHECK(cudaError_t error_code) {
     if (error_code != cudaSuccess) {
@@ -93,8 +82,8 @@ inline void* safeCudaMalloc(size_t memSize) {
     return deviceMem;
 }
 
-void correctBox(std::vector<Detection>& results, const int img_w, const int img_h);
-void drawImg(const std::vector<Detection>& results,
+void correctBox(std::vector<common::Detection>& results, const int img_w, const int img_h);
+void drawImg(const std::vector<common::Detection>& results,
              cv::Mat& img,
              const std::vector<cv::Scalar>& color);
 } // namespace util

@@ -1,5 +1,5 @@
-#ifndef CENTERRT_STRACK_H
-#define CENTERRT_STRACK_H
+#ifndef CENTERRT_TRACK_STRACK_H
+#define CENTERRT_TRACK_STRACK_H
 
 #include <cstdint>
 #include <memory>

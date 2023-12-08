@@ -3,11 +3,11 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
+#include "common/datatype.h"
 #include "det/centernet.h"
 #include "det/centerutils.h"
 #include "det/config.h"
 #include "track/botsort.h"
-#include "track/datatype.h"
 
 std::vector<float> prepareImage(cv::Mat& img) {
     int channel = centernet::config::channel;
@@ -38,30 +38,31 @@ std::vector<float> prepareImage(cv::Mat& img) {
     return res;
 }
 
-std::vector<botsort::Detection> transFormat(
-    const std::vector<centernet::util::Detection>& detections) {
-    std::vector<botsort::Detection> res;
-    res.reserve(detections.size());
-    for (const auto& det : detections) {
-        botsort::Detection d;
-        d.bbox_tlwh.x = det.box.x1;
-        d.bbox_tlwh.y = det.box.y1;
-        d.bbox_tlwh.width = det.box.x2 - det.box.x1;
-        d.bbox_tlwh.height = det.box.y2 - det.box.y1;
-        d.class_id = det.class_id;
-        d.confidence = det.prob;
-        res.push_back(std::move(d));
-    }
-    return res;
-}
+// std::vector<botsort::Detection> transFormat(
+//     const std::vector<centernet::util::Detection>& detections) {
+//     std::vector<botsort::Detection> res;
+//     res.reserve(detections.size());
+//     for (const auto& det : detections) {
+//         botsort::Detection d;
+//         d.bbox_tlwh.x = det.box.x1;
+//         d.bbox_tlwh.y = det.box.y1;
+//         d.bbox_tlwh.width = det.box.x2 - det.box.x1;
+//         d.bbox_tlwh.height = det.box.y2 - det.box.y1;
+//         d.class_id = det.class_id;
+//         d.confidence = det.prob;
+//         res.push_back(std::move(d));
+//     }
+//     return res;
+// }
 
 void plot_tracks(cv::Mat& frame,
-                 std::vector<botsort::Detection>& detections,
+                 std::vector<common::Detection>& detections,
                  std::vector<std::shared_ptr<botsort::STrack>>& tracks) {
     static std::map<int, cv::Scalar> track_colors;
     cv::Scalar detection_color = cv::Scalar(0, 0, 0);
     for (const auto& det : detections) {
-        cv::rectangle(frame, det.bbox_tlwh, detection_color, 1);
+        cv::Rect rect(det.box.x1, det.box.y1, det.box.x2 - det.box.x1, det.box.y2 - det.box.y1);
+        cv::rectangle(frame, rect, detection_color, 1);
     }
 
     for (const std::shared_ptr<botsort::STrack>& track : tracks) {
@@ -114,15 +115,14 @@ int main(int argc, char* argv[]) {
         auto net_input = prepareImage(img);
         engine.infer(net_input.data(), output_data.get());
         int num_det = static_cast<int>(output_data[0]);
-        std::vector<centernet::util::Detection> results(num_det);
-        memcpy(results.data(), &output_data[1], num_det * sizeof(centernet::util::Detection));
+        std::vector<common::Detection> results(num_det);
+        memcpy(results.data(), &output_data[1], num_det * sizeof(common::Detection));
         centernet::util::correctBox(results, img.cols, img.rows);
         auto t1 = std::chrono::steady_clock::now();
         auto dur = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0);
         std::cout << "Detection Cost: " << dur.count() << " microseconds" << std::endl;
-        std::vector<botsort::Detection> detections = transFormat(results);
-        auto track_res = botSort->track(detections, img);
-        plot_tracks(img, detections, track_res);
+        auto track_res = botSort->track(results, img);
+        plot_tracks(img, results, track_res);
 
         auto t2 = std::chrono::steady_clock::now();
         auto dur1 = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1);

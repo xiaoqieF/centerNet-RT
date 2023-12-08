@@ -16,7 +16,8 @@ BoTSORT::BoTSORT(const std::string& config_path) {
     gmc_algo_ = GMCAlgorithm::createAlgo(gmc_name_, "../src/track/config/gmc.ini");
 }
 
-BoTSORT::STrackList BoTSORT::track(const std::vector<Detection>& detections, const cv::Mat& frame) {
+BoTSORT::STrackList BoTSORT::track(const std::vector<common::Detection>& detections,
+                                   const cv::Mat& frame) {
     frame_id_++;
     // 为所有检测框生成 STrack 对象，并将其分为高分框和低分框
     auto [detections_high_conf, detections_low_conf] = splitDetectionsByConfidence(detections);
@@ -180,15 +181,16 @@ void BoTSORT::loadParamsFromINI(const std::string& config_path) {
 }
 
 std::pair<BoTSORT::STrackList, BoTSORT::STrackList> BoTSORT::splitDetectionsByConfidence(
-    const std::vector<Detection>& detections) {
+    const std::vector<common::Detection>& detections) {
     std::vector<std::shared_ptr<STrack>> detections_high_conf, detections_low_conf;
-    for (const Detection& detection : detections) {
-        std::vector<float> tlwh{detection.bbox_tlwh.x, detection.bbox_tlwh.y,
-                                detection.bbox_tlwh.width, detection.bbox_tlwh.height};
-        if (detection.confidence > track_low_thresh_) {
+    for (const common::Detection& detection : detections) {
+        std::vector<float> tlwh{detection.box.x1, detection.box.y1,
+                                detection.box.x2 - detection.box.x1,
+                                detection.box.y2 - detection.box.y1};
+        if (detection.prob > track_low_thresh_) {
             std::shared_ptr<STrack> tracklet =
-                std::make_shared<STrack>(tlwh, detection.confidence, detection.class_id);
-            if (detection.confidence >= track_high_thresh_) {
+                std::make_shared<STrack>(tlwh, detection.prob, detection.class_id);
+            if (detection.prob >= track_high_thresh_) {
                 detections_high_conf.push_back(tracklet);
             } else {
                 detections_low_conf.push_back(tracklet);

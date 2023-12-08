@@ -1,5 +1,5 @@
-#ifndef CENTERRT_POSTPROCESS_H
-#define CENTERRT_POSTPROCESS_H
+#ifndef CENTERRT_DET_POSTPROCESS_H
+#define CENTERRT_DET_POSTPROCESS_H
 
 namespace centernet {
 void centerNetPostProcess(const float *hm,

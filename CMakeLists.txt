@@ -24,4 +24,5 @@ enable_language(CUDA)
 find_package(Eigen3 REQUIRED)
 message(STATUS " include path: ${EIGEN3_INCLUDE_DIRS}")
 
+include_directories(src)
 add_subdirectory(src)

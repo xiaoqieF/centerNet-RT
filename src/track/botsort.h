@@ -1,10 +1,11 @@
-#ifndef CENTERRT_BOTSORT_H
-#define CENTERRT_BOTSORT_H
+#ifndef CENTERRT_TRACK_BOTSORT_H
+#define CENTERRT_TRACK_BOTSORT_H
 
 #include <memory>
 #include <string>
 #include <vector>
 
+#include "common/datatype.h"
 #include "gmc.h"
 #include "kalmanfilter.h"
 #include "strack.h"
@@ -14,12 +15,12 @@ class BoTSORT {
 public:
     using STrackList = std::vector<std::shared_ptr<STrack>>;
     explicit BoTSORT(const std::string& config_path);
-    STrackList track(const std::vector<Detection>& dets, const cv::Mat& frame);
+    STrackList track(const std::vector<common::Detection>& dets, const cv::Mat& frame);
 
 private:
     void loadParamsFromINI(const std::string& config_path);
     std::pair<STrackList, STrackList> splitDetectionsByConfidence(
-        const std::vector<Detection>& detections);
+        const std::vector<common::Detection>& detections);
     static STrackList mergeTrackLists(const STrackList& list_a, const STrackList& list_b);
     static STrackList removeFromList(const STrackList& tracks, const STrackList& to_remove);
 

@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 
+#include "common/datatype.h"
 #include "det/centernet.h"
 #include "det/centerutils.h"
 #include "det/config.h"
@@ -76,8 +77,8 @@ int main(int argc, char* argv[]) {
     center.infer(input.data(), output_data.get());
     int num_det = static_cast<int>(output_data[0]);
     std::cout << "det_num: " << num_det << std::endl;
-    std::vector<util::Detection> results(num_det);
-    memcpy(results.data(), &output_data[1], num_det * sizeof(util::Detection));
+    std::vector<common::Detection> results(num_det);
+    memcpy(results.data(), &output_data[1], num_det * sizeof(common::Detection));
     for (auto& det : results) {
         std::cout << "class id: " << det.class_id << "; prob: " << det.prob
                   << "; bbox: x1: " << det.box.x1 << " y1: " << det.box.y1 << " x2: " << det.box.x2

@@ -1,4 +1,5 @@
 #include "centerutils.h"
+#include "common/datatype.h"
 #include "config.h"
 #include "postprocess.h"
 
@@ -53,8 +54,8 @@ __global__ void forwardKernel(const float *hm,
         }
         if (idx == max_index) {
             int res_count = (int)atomicAdd(output, 1);
-            char *data = (char *)output + sizeof(float) + res_count * sizeof(util::Detection);
-            util::Detection *det = (util::Detection *)(data);
+            char *data = (char *)output + sizeof(float) + res_count * sizeof(common::Detection);
+            common::Detection *det = (common::Detection *)(data);
             c_x = grid_x + reg[reg_index];
             c_y = grid_y + reg[reg_index + stride];
             det->box.x1 = (c_x - wh[reg_index] / 2) * 4;

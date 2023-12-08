@@ -1,5 +1,5 @@
-#ifndef CENTERRT_KALMANFILTER_H
-#define CENTERRT_KALMANFILTER_H
+#ifndef CENTERRT_TRACK_KALMANFILTER_H
+#define CENTERRT_TRACK_KALMANFILTER_H
 
 #include <cstdint>
 #include <eigen3/Eigen/Dense>

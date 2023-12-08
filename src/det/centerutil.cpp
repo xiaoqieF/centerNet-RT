@@ -6,7 +6,7 @@
 namespace centernet {
 namespace util {
 
-void correctBox(std::vector<Detection>& results, const int img_w, const int img_h) {
+void correctBox(std::vector<common::Detection>& results, const int img_w, const int img_h) {
     int input_w = centernet::config::input_w;
     int input_h = centernet::config::input_h;
     float scale =
@@ -26,7 +26,7 @@ void correctBox(std::vector<Detection>& results, const int img_w, const int img_
     }
 }
 
-void drawImg(const std::vector<Detection>& results,
+void drawImg(const std::vector<common::Detection>& results,
              cv::Mat& img,
              const std::vector<cv::Scalar>& color) {
     int box_think = (img.rows + img.cols) * 0.001;

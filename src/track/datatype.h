@@ -1,5 +1,5 @@
-#ifndef CENTERRT_DATATYPE_H
-#define CENTERRT_DATATYPE_H
+#ifndef CENTERRT_TRACK_DATATYPE_H
+#define CENTERRT_TRACK_DATATYPE_H
 
 #include <eigen3/Eigen/Dense>
 #include <opencv2/core.hpp>
@@ -17,12 +17,6 @@ struct AssociationData {
     std::vector<std::pair<int, int>> matches;
     std::vector<int> unmatched_track_indices;
     std::vector<int> unmatched_det_indices;
-};
-
-struct Detection {
-    cv::Rect_<float> bbox_tlwh;
-    int class_id;
-    float confidence;
 };
 
 } // namespace botsort

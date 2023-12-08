@@ -26,7 +26,8 @@ OrbGMC::OrbGMC(const std::string& config_path) {
     matcher_ = cv::BFMatcher::create(cv::NORM_HAMMING);
 }
 
-HomoGraphyMatrix OrbGMC::apply(const cv::Mat& frame_raw, const std::vector<Detection>& detections) {
+HomoGraphyMatrix OrbGMC::apply(const cv::Mat& frame_raw,
+                               const std::vector<common::Detection>& detections) {
     int height = frame_raw.rows;
     int width = frame_raw.cols;
     cv::Mat gray_frame;
@@ -145,7 +146,7 @@ HomoGraphyMatrix OrbGMC::apply(const cv::Mat& frame_raw, const std::vector<Detec
     return H;
 }
 
-cv::Mat OrbGMC::createMask(const cv::Mat& frame, const std::vector<Detection>& detections) {
+cv::Mat OrbGMC::createMask(const cv::Mat& frame, const std::vector<common::Detection>& detections) {
     cv::Mat mask = cv::Mat::zeros(frame.size(), frame.type());
     int height = frame.rows, width = frame.cols;
     // 边缘为不感兴趣区域
@@ -154,10 +155,10 @@ cv::Mat OrbGMC::createMask(const cv::Mat& frame, const std::vector<Detection>& d
     mask(roi) = 255;
     // 去除目标框所在区域
     for (const auto& det : detections) {
-        cv::Rect box(static_cast<int>(det.bbox_tlwh.x / downscale_),
-                     static_cast<int>(det.bbox_tlwh.y / downscale_),
-                     static_cast<int>(det.bbox_tlwh.width / downscale_),
-                     static_cast<int>(det.bbox_tlwh.height / downscale_));
+        cv::Rect box(static_cast<int>(det.box.x1 / downscale_),
+                     static_cast<int>(det.box.y1 / downscale_),
+                     static_cast<int>((det.box.x2 - det.box.x1) / downscale_),
+                     static_cast<int>((det.box.y2 - det.box.y1) / downscale_));
         mask(box) = 0;
     }
     return mask;
@@ -181,7 +182,7 @@ SparseOptFlowGMC::SparseOptFlowGMC(const std::string& config_path) {
 }
 
 HomoGraphyMatrix SparseOptFlowGMC::apply(const cv::Mat& frame_raw,
-                                         const std::vector<Detection>& detections) {
+                                         const std::vector<common::Detection>& detections) {
     // Initialization
     int height = frame_raw.rows;
     int width = frame_raw.cols;

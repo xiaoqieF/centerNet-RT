@@ -1,5 +1,5 @@
-#ifndef CENTERRT_CENTERNET_H
-#define CENTERRT_CENTERNET_H
+#ifndef CENTERRT_DET_CENTERNET_H
+#define CENTERRT_DET_CENTERNET_H
 
 #include <NvInfer.h>
 
