@@ -11,7 +11,8 @@ BoTSORT::BoTSORT(const std::string& config_path) {
     frame_id_ = 0;
     buffer_size_ = static_cast<uint8_t>(frame_rate_ / 30.0 * track_buffer_);
     max_time_lost_ = buffer_size_;
-    kalman_filter_ = std::make_unique<KalmanFilter>(static_cast<double>(1.0 / frame_rate_));
+    // kalman_filter_ = std::make_unique<KalmanFilter>(static_cast<double>(1.0 / frame_rate_));
+    kalman_filter_ = std::make_unique<KalmanFilter>(1.0);
     gmc_algo_ = GMCAlgorithm::createAlgo(gmc_name_, "../src/track/config/gmc.ini");
 }
 
@@ -31,7 +32,7 @@ BoTSORT::STrackList BoTSORT::track(const std::vector<Detection>& detections, con
     STrackList tracks_pool = mergeTrackLists(tracked_tracks, lost_tracks_);
     // 已确认的所有轨迹(包括暂时丢失的)都进行 Kalman 预测
     STrack::multiPredict(tracks_pool, *kalman_filter_);
-    HomoGraphyMatrix H = gmc_algo_->apply(frame, detections);
+    // HomoGraphyMatrix H = gmc_algo_->apply(frame, detections);
     // STrack::multiGMC(tracks_pool, H);
     // STrack::multiGMC(unconfirmed_tracks, H);
 

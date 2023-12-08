@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
     centernet::CenterEngine engine("../onnxmodel/DroneVsBirds_centernetplus_r18.trt");
     std::unique_ptr<botsort::BoTSORT> botSort =
         std::make_unique<botsort::BoTSORT>("../src/track/config/tracker.ini");
-    cv::VideoCapture cap("1.mp4");
+    cv::VideoCapture cap("3.mp4");
     if (!cap.isOpened()) {
         std::cout << "Can't open video " << std::endl;
         return -1;
@@ -116,11 +116,6 @@ int main(int argc, char* argv[]) {
         int num_det = static_cast<int>(output_data[0]);
         std::vector<centernet::util::Detection> results(num_det);
         memcpy(results.data(), &output_data[1], num_det * sizeof(centernet::util::Detection));
-        // for (auto& det : results) {
-        //     std::cout << "class id: " << det.class_id << "; prob: " << det.prob
-        //               << "; bbox: x1: " << det.box.x1 << " y1: " << det.box.y1
-        //               << " x2: " << det.box.x2 << " y2: " << det.box.y2 << std::endl;
-        // }
         centernet::util::correctBox(results, img.cols, img.rows);
         auto t1 = std::chrono::steady_clock::now();
         auto dur = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0);
@@ -134,8 +129,8 @@ int main(int argc, char* argv[]) {
 
         std::cout << "Tracking Cost: " << dur1.count() << " microseconds" << std::endl;
         std::cout << "Total: " << (dur + dur1).count() << " microseconds" << std::endl;
-        // cv::imshow("result", img);
-        // cv::waitKey(25);
+        cv::imshow("result", img);
+        cv::waitKey(1);
     }
 
     return 0;

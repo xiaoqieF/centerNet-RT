@@ -3,12 +3,9 @@
 namespace botsort {
 KalmanFilter::KalmanFilter(double dt) {
     //  A = [[1,0,0,0,1,0,0,0],   H = [[1,0,0,0,0,0,0,0],
-    //       [0,1,0,0,0,0,0,0],        [0,1,0,0,0,0,0,0],
-    //       [0,0,1,0,0,0,0,0],        [0,0,1,0,0,0,0,0],
-    //       [0,0,0,1,0,0,0,0],        [0,0,0,1,0,0,0,0]]
-    //       [0,1,0,0,0,1,0,0],
-    //       [0,0,1,0,0,0,1,0],
-    //       [0,0,0,1,0,0,0,1],
+    //       [0,1,0,0,0,1,0,0],        [0,1,0,0,0,0,0,0],
+    //       [0,0,1,0,0,0,1,0],        [0,0,1,0,0,0,0,0],
+    //       [0,0,0,1,0,0,0,1],        [0,0,0,1,0,0,0,0]]
     //       [0,0,0,0,1,0,0,0],
     //       [0,0,0,0,0,1,0,0],
     //       [0,0,0,0,0,0,1,0],
@@ -53,8 +50,10 @@ std::pair<KalmanFilter::MeasSpaceVec, KalmanFilter::MeasCovMatrix> KalmanFilter:
     // 构建测量噪声 R
     const StateSpaceVec& mean,
     const ErrorCovMatrix& covariance) {
+    // 测量噪声尽可能小
     MeasSpaceVec innovation_cov =
-        std_weight_position_ * Eigen::Vector4f(mean(2), mean(3), mean(2), mean(3));
+        std_weight_position_ *
+        Eigen::Vector4f(mean(2), mean(3), mean(2), mean(3)).array().square().matrix() * 0.01;
     MeasCovMatrix innovation_cov_diag = innovation_cov.asDiagonal();
 
     // HX_k^-
