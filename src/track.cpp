@@ -38,23 +38,6 @@ std::vector<float> prepareImage(cv::Mat& img) {
     return res;
 }
 
-// std::vector<botsort::Detection> transFormat(
-//     const std::vector<centernet::util::Detection>& detections) {
-//     std::vector<botsort::Detection> res;
-//     res.reserve(detections.size());
-//     for (const auto& det : detections) {
-//         botsort::Detection d;
-//         d.bbox_tlwh.x = det.box.x1;
-//         d.bbox_tlwh.y = det.box.y1;
-//         d.bbox_tlwh.width = det.box.x2 - det.box.x1;
-//         d.bbox_tlwh.height = det.box.y2 - det.box.y1;
-//         d.class_id = det.class_id;
-//         d.confidence = det.prob;
-//         res.push_back(std::move(d));
-//     }
-//     return res;
-// }
-
 void plot_tracks(cv::Mat& frame,
                  std::vector<common::Detection>& detections,
                  std::vector<std::shared_ptr<botsort::STrack>>& tracks) {

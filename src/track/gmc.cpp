@@ -13,8 +13,8 @@ std::unique_ptr<GMCAlgorithm> GMCAlgorithm::createAlgo(const std::string& gmc_na
     } else if (gmc_name == "sparseOptFlow") {
         return std::make_unique<SparseOptFlowGMC>(config_path);
     } else {
-        std::cerr << "Unsupport gmc method" << std::endl;
-        exit(1);
+        std::cerr << "Do not use gmc method" << std::endl;
+        return nullptr;
     }
 }
 
