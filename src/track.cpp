@@ -73,7 +73,7 @@ void plot_tracks(cv::Mat& frame,
 }
 
 int main(int argc, char* argv[]) {
-    centernet::CenterEngine engine("../onnxmodel/DroneVsBirds_centernetplus_r18.trt");
+    centernet::CenterEngine engine("../onnxmodel/DroneVsBirds_centernetplus_r18_FP32.trt");
     std::unique_ptr<botsort::BoTSORT> botSort =
         std::make_unique<botsort::BoTSORT>("../src/track/config/tracker.ini");
     cv::VideoCapture cap("3.mp4");

@@ -9,7 +9,7 @@ target_link_libraries(centernet nvinfer nvonnxparser)
 add_executable(detection detection.cpp)
 target_link_libraries(detection centernet)
 
-add_executable(onnx2trt onnx2trt.cpp)
+add_executable(onnx2trt onnx2trt.cpp common/calibrator.cpp)
 target_link_libraries(onnx2trt ${CUDA_LIBRARIES})
 target_link_libraries(onnx2trt ${OpenCV_LIBS})
 target_link_libraries(onnx2trt nvinfer nvonnxparser)

@@ -7,11 +7,14 @@
 #include <memory>
 #include <string>
 
+#include "common/calibrator.h"
 #include "det/centerutils.h"
 
 void onnx2trt(const std::string& onnx_model,
               const std::string& save_engine_path,
-              int build_type = 1) {
+              int build_type = 1,
+              const std::string& image_dir = "",
+              const char* calib_table = nullptr) {
     using namespace nvinfer1;
     centernet::util::Logger logger;
     std::unique_ptr<IBuilder> builder{createInferBuilder(logger)};
@@ -29,10 +32,29 @@ void onnx2trt(const std::string& onnx_model,
     config->setMemoryPoolLimit(MemoryPoolType::kWORKSPACE, 1U << 20);
     config->setFlag(BuilderFlag::kGPU_FALLBACK);
     if (build_type == 1) {
-        config->setFlag(BuilderFlag::kFP16);
+        if (builder->platformHasFastFp16()) {
+            std::cout << "Use Fast FP16 !!!" << std::endl;
+            config->setFlag(BuilderFlag::kFP16);
+        } else {
+            std::cout << "Unsupport FP16 mode" << std::endl;
+            exit(-1);
+        }
     }
     if (build_type == 2) {
-        config->setFlag(BuilderFlag::kINT8);
+        if (builder->platformHasFastInt8()) {
+            std::cout << "Use Fast Int8 !!!" << std::endl;
+            config->setFlag(BuilderFlag::kINT8);
+            if (image_dir == "" || calib_table == nullptr) {
+                std::cout << "Please assign image_dir and calib_table" << std::endl;
+                exit(-1);
+            }
+            nvinfer1::IInt8EntropyCalibrator2* calibrator =
+                new Calibrator(1, 512, 512, image_dir, calib_table);
+            config->setInt8Calibrator(calibrator);
+        } else {
+            std::cout << "Unsupport Int8 mode" << std::endl;
+            exit(-1);
+        }
     }
 
     std::unique_ptr<IHostMemory> model_stream{builder->buildSerializedNetwork(*network, *config)};
@@ -48,10 +70,17 @@ void onnx2trt(const std::string& onnx_model,
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        std::cerr << "Usage: trans <onnx_model_path> <save_path>" << std::endl;
+    if (argc != 3 && argc != 5) {
+        std::cerr << "Usage: trans <onnx_model_path> <save_path> optional<image_dir> "
+                     "optional<calib_table>"
+                  << std::endl;
         return -1;
     }
-    onnx2trt(argv[1], argv[2]);
+    if (argc == 3) {
+        onnx2trt(argv[1], argv[2]);
+    } else if (argc == 5) {
+        std::string image_dir = argv[3];
+        onnx2trt(argv[1], argv[2], 2, image_dir, argv[4]);
+    }
     return 0;
 }

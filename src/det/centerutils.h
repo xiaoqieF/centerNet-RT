@@ -68,7 +68,9 @@ public:
                 s = "VERBOSE";
                 break;
         }
-        cerr << s << ": " << msg << endl;
+        if (severity <= Severity::kINFO) {
+            cerr << s << ": " << msg << endl;
+        }
     }
 };
 
