@@ -40,9 +40,10 @@ std::vector<float> prepareImage(cv::Mat& img) {
 
 void plot_tracks(cv::Mat& frame,
                  std::vector<common::Detection>& detections,
-                 std::vector<std::shared_ptr<botsort::STrack>>& tracks) {
+                 std::vector<std::shared_ptr<botsort::STrack>>& tracks,
+                 int fps) {
     static std::map<int, cv::Scalar> track_colors;
-    cv::Scalar detection_color = cv::Scalar(0, 0, 0);
+    cv::Scalar detection_color = cv::Scalar(255, 0, 0);
     for (const auto& det : detections) {
         cv::Rect rect(det.box.x1, det.box.y1, det.box.x2 - det.box.x1, det.box.y2 - det.box.y1);
         cv::rectangle(frame, rect, detection_color, 1);
@@ -69,6 +70,8 @@ void plot_tracks(cv::Mat& frame,
         cv::rectangle(frame, cv::Rect(10, 10, 20, 20), detection_color, -1);
         cv::putText(frame, "Detection", cv::Point(40, 25), cv::FONT_HERSHEY_SIMPLEX, 0.75,
                     detection_color, 2);
+        cv::putText(frame, "FPS: " + std::to_string(fps), cv::Point(20, 65),
+                    cv::FONT_HERSHEY_SIMPLEX, 0.75, detection_color, 2);
     }
 }
 
@@ -104,18 +107,17 @@ int main(int argc, char* argv[]) {
         std::vector<common::Detection> results(num_det);
         memcpy(results.data(), &output_data[1], num_det * sizeof(common::Detection));
         centernet::util::correctBox(results, img.cols, img.rows);
-        std::cout << "Det result: " << results.size() << std::endl;
+        // std::cout << "Det result: " << results.size() << std::endl;
         auto t1 = std::chrono::steady_clock::now();
         auto dur = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0);
-        // std::cout << "Detection Cost: " << dur.count() << " microseconds" << std::endl;
+        std::cout << "Detection Cost: " << dur.count() << " microseconds" << std::endl;
         auto track_res = botSort->track(results, img);
-        plot_tracks(img, results, track_res);
-
         auto t2 = std::chrono::steady_clock::now();
         auto dur1 = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1);
+        plot_tracks(img, results, track_res, 1'000'000 / (dur + dur1).count());
 
-        // std::cout << "Tracking Cost: " << dur1.count() << " microseconds" << std::endl;
-        // std::cout << "Total: " << (dur + dur1).count() << " microseconds" << std::endl;
+        std::cout << "Tracking Cost: " << dur1.count() << " microseconds" << std::endl;
+        std::cout << "Total: " << (dur + dur1).count() << " microseconds" << std::endl;
         cv::imshow("result", img);
         cv::waitKey(1);
     }
