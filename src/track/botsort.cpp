@@ -7,13 +7,13 @@
 
 namespace botsort {
 BoTSORT::BoTSORT(const std::string& config_path) {
-    loadParamsFromINI(config_path);
+    loadParamsFromINI(config_path + "/tracker.ini");
     frame_id_ = 0;
     buffer_size_ = static_cast<uint8_t>(frame_rate_ / 30.0 * track_buffer_);
     max_time_lost_ = buffer_size_;
     // kalman_filter_ = std::make_unique<KalmanFilter>(static_cast<double>(1.0 / frame_rate_));
     kalman_filter_ = std::make_unique<KalmanFilter>(1.0);
-    gmc_algo_ = GMCAlgorithm::createAlgo(gmc_name_, "../src/track/config/gmc.ini");
+    gmc_algo_ = GMCAlgorithm::createAlgo(gmc_name_, config_path + "/gmc.ini");
 }
 
 BoTSORT::STrackList BoTSORT::track(const std::vector<common::Detection>& detections,
@@ -69,7 +69,7 @@ BoTSORT::STrackList BoTSORT::track(const std::vector<common::Detection>& detecti
     }
     CostMatrix iou_dists_second =
         matching::iouDistance(unmatched_tracks_after_1st_association, detections_low_conf);
-    AssociationData second_associations = matching::lineraAssignment(iou_dists_second, 0.5);
+    AssociationData second_associations = matching::lineraAssignment(iou_dists_second, 0.8);
 
     for (auto match : second_associations.matches) {
         std::shared_ptr<STrack>& track = unmatched_tracks_after_1st_association[match.first];
@@ -133,6 +133,7 @@ BoTSORT::STrackList BoTSORT::track(const std::vector<common::Detection>& detecti
     // 5. 更新丢失轨迹的状态
     for (auto& track : lost_tracks_) {
         if (frame_id_ - track->endFrame() > max_time_lost_) {
+            std::cout << "Track Removed: " << track->trackId() << std::endl;
             track->markRemoved();
             removed_tracks.push_back(track);
         }

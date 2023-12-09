@@ -73,10 +73,13 @@ void plot_tracks(cv::Mat& frame,
 }
 
 int main(int argc, char* argv[]) {
-    centernet::CenterEngine engine("../onnxmodel/DroneVsBirds_centernetplus_r18_FP32.trt");
-    std::unique_ptr<botsort::BoTSORT> botSort =
-        std::make_unique<botsort::BoTSORT>("../src/track/config/tracker.ini");
-    cv::VideoCapture cap("3.mp4");
+    if (argc != 4) {
+        std::cerr << "Usage: ./track <engine_path> <config_path> <video_path>" << std::endl;
+        return -1;
+    }
+    centernet::CenterEngine engine(argv[1]);
+    std::unique_ptr<botsort::BoTSORT> botSort = std::make_unique<botsort::BoTSORT>(argv[2]);
+    cv::VideoCapture cap(argv[3]);
     if (!cap.isOpened()) {
         std::cout << "Can't open video " << std::endl;
         return -1;
@@ -101,17 +104,18 @@ int main(int argc, char* argv[]) {
         std::vector<common::Detection> results(num_det);
         memcpy(results.data(), &output_data[1], num_det * sizeof(common::Detection));
         centernet::util::correctBox(results, img.cols, img.rows);
+        std::cout << "Det result: " << results.size() << std::endl;
         auto t1 = std::chrono::steady_clock::now();
         auto dur = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0);
-        std::cout << "Detection Cost: " << dur.count() << " microseconds" << std::endl;
+        // std::cout << "Detection Cost: " << dur.count() << " microseconds" << std::endl;
         auto track_res = botSort->track(results, img);
         plot_tracks(img, results, track_res);
 
         auto t2 = std::chrono::steady_clock::now();
         auto dur1 = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1);
 
-        std::cout << "Tracking Cost: " << dur1.count() << " microseconds" << std::endl;
-        std::cout << "Total: " << (dur + dur1).count() << " microseconds" << std::endl;
+        // std::cout << "Tracking Cost: " << dur1.count() << " microseconds" << std::endl;
+        // std::cout << "Total: " << (dur + dur1).count() << " microseconds" << std::endl;
         cv::imshow("result", img);
         cv::waitKey(1);
     }
