@@ -75,6 +75,17 @@ void plot_tracks(cv::Mat& frame,
     }
 }
 
+void checkVideo(cv::VideoCapture& cap) {
+    if (!cap.isOpened()) {
+        std::cout << "Can't open video " << std::endl;
+        exit(-1);
+    }
+    std::cout << "视频中图像的宽度=" << cap.get(cv::CAP_PROP_FRAME_WIDTH) << std::endl;
+    std::cout << "视频中图像的高度=" << cap.get(cv::CAP_PROP_FRAME_HEIGHT) << std::endl;
+    std::cout << "视频帧率=" << cap.get(cv::CAP_PROP_FPS) << std::endl;
+    std::cout << "视频的总帧数=" << cap.get(cv::CAP_PROP_FRAME_COUNT);
+}
+
 int main(int argc, char* argv[]) {
     if (argc != 4) {
         std::cerr << "Usage: ./track <engine_path> <config_path> <video_path>" << std::endl;
@@ -83,23 +94,20 @@ int main(int argc, char* argv[]) {
     centernet::CenterEngine engine(argv[1]);
     std::unique_ptr<botsort::BoTSORT> botSort = std::make_unique<botsort::BoTSORT>(argv[2]);
     cv::VideoCapture cap(argv[3]);
-    if (!cap.isOpened()) {
-        std::cout << "Can't open video " << std::endl;
-        return -1;
-    }
-    std::cout << "视频中图像的宽度=" << cap.get(cv::CAP_PROP_FRAME_WIDTH) << std::endl;
-    std::cout << "视频中图像的高度=" << cap.get(cv::CAP_PROP_FRAME_HEIGHT) << std::endl;
-    std::cout << "视频帧率=" << cap.get(cv::CAP_PROP_FPS) << std::endl;
-    std::cout << "视频的总帧数=" << cap.get(cv::CAP_PROP_FRAME_COUNT);
+    checkVideo(cap);
     cv::namedWindow("result", cv::WINDOW_NORMAL);
     cv::resizeWindow("result", 1920, 1080);
     std::unique_ptr<float[]> output_data(new float[engine.outputBufferSize()]);
     cv::Mat img;
+    std::chrono::microseconds avg_det_time(0);
+    std::chrono::microseconds avg_track_time(0);
+    int frame_id = 0;
     while (true) {
         cap >> img;
         if (img.empty()) {
             break;
         }
+        ++frame_id;
         auto t0 = std::chrono::steady_clock::now();
         auto net_input = prepareImage(img);
         engine.infer(net_input.data(), output_data.get());
@@ -118,9 +126,16 @@ int main(int argc, char* argv[]) {
 
         std::cout << "Tracking Cost: " << dur1.count() << " microseconds" << std::endl;
         std::cout << "Total: " << (dur + dur1).count() << " microseconds" << std::endl;
+        avg_det_time = avg_det_time + std::chrono::duration_cast<std::chrono::microseconds>(
+                                          1.0 / frame_id * (dur - avg_det_time));
+        avg_track_time = avg_track_time + std::chrono::duration_cast<std::chrono::microseconds>(
+                                              1.0 / frame_id * ((dur + dur1) - avg_track_time));
         cv::imshow("result", img);
         cv::waitKey(1);
     }
+    std::cout << "Avg det time: " << avg_det_time.count() << " microseconds" << std::endl;
+    std::cout << "Avg track time: " << avg_track_time.count() << " microseconds" << std::endl;
+    std::cout << "Avg FPS: " << 1'000'000 / avg_track_time.count() << std::endl;
 
     return 0;
 }
