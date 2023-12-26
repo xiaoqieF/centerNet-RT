@@ -80,12 +80,7 @@ int main(int argc, char* argv[]) {
         }
         ++frame_id;
         auto t0 = std::chrono::steady_clock::now();
-        auto net_input = centernet::util::prepareImage(img);
-        engine.infer(net_input.data(), output_data.get());
-        int num_det = static_cast<int>(output_data[0]);
-        std::vector<common::Detection> results(num_det);
-        memcpy(results.data(), &output_data[1], num_det * sizeof(common::Detection));
-        centernet::util::correctBox(results, img.cols, img.rows);
+        auto results = engine.detect(img);
         // std::cout << "Det result: " << results.size() << std::endl;
         auto t1 = std::chrono::steady_clock::now();
         auto dur = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0);

@@ -79,4 +79,17 @@ void CenterEngine::infer(const void* in_data, void* out_data) {
                                      cudaMemcpyDeviceToHost, cuda_stream_));
 }
 
+std::vector<common::Detection> CenterEngine::detect(const cv::Mat& img) {
+    auto input = util::prepareImage(img);
+
+    std::unique_ptr<float[]> output_data(new float[outputBufferSize()]);
+    auto t0 = std::chrono::steady_clock::now();
+    infer(input.data(), output_data.get());
+    int num_det = static_cast<int>(output_data[0]);
+    std::cout << "det_num: " << num_det << std::endl;
+    std::vector<common::Detection> results(num_det);
+    memcpy(results.data(), &output_data[1], num_det * sizeof(common::Detection));
+    util::correctBox(results, img.cols, img.rows);
+    return results;
+}
 } // namespace centernet

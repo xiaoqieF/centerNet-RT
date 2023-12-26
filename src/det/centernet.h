@@ -22,6 +22,7 @@ public:
         cudaFree(cuda_output_buffer_);
     }
 
+    std::vector<common::Detection> detect(const cv::Mat &img);
     void infer(const void *in_data, void *out_data);
     int64_t outputBufferSize() const { return output_buffer_size_; }
 
