@@ -9,35 +9,6 @@
 #include "det/config.h"
 #include "track/botsort.h"
 
-std::vector<float> prepareImage(cv::Mat& img) {
-    int channel = centernet::config::channel;
-    int input_w = centernet::config::input_w;
-    int input_h = centernet::config::input_h;
-    float scale = cv::min(float(input_w) / img.cols, float(input_h) / img.rows);
-    auto scale_size = cv::Size(img.cols * scale, img.rows * scale);
-    cv::Mat resized;
-    cv::resize(img, resized, scale_size, 0, 0);
-
-    cv::Mat cropped(input_h, input_w, CV_8UC3, cv::Scalar(114, 114, 114));
-    cv::Rect rect((input_w - scale_size.width) / 2, (input_h - scale_size.height) / 2,
-                  scale_size.width, scale_size.height);
-    resized.copyTo(cropped(rect));
-
-    cv::Mat img_float;
-    cropped.convertTo(img_float, CV_32FC3, 1. / 255);
-
-    std::vector<float> res(input_h * input_w * channel);
-    auto data = res.data();
-    int channel_len = input_h * input_w;
-    // HWC -> CHW
-    std::vector<cv::Mat> input_channels{
-        cv::Mat(input_h, input_w, CV_32FC1, data + channel_len * 2),
-        cv::Mat(input_h, input_w, CV_32FC1, data + channel_len * 1),
-        cv::Mat(input_h, input_w, CV_32FC1, data + channel_len * 0)};
-    cv::split(img_float, input_channels);
-    return res;
-}
-
 void plot_tracks(cv::Mat& frame,
                  std::vector<common::Detection>& detections,
                  std::vector<std::shared_ptr<botsort::STrack>>& tracks,
@@ -109,7 +80,7 @@ int main(int argc, char* argv[]) {
         }
         ++frame_id;
         auto t0 = std::chrono::steady_clock::now();
-        auto net_input = prepareImage(img);
+        auto net_input = centernet::util::prepareImage(img);
         engine.infer(net_input.data(), output_data.get());
         int num_det = static_cast<int>(output_data[0]);
         std::vector<common::Detection> results(num_det);

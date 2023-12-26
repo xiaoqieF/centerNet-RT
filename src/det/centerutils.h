@@ -84,6 +84,7 @@ inline void* safeCudaMalloc(size_t memSize) {
     return deviceMem;
 }
 
+std::vector<float> prepareImage(const cv::Mat& img);
 void correctBox(std::vector<common::Detection>& results, const int img_w, const int img_h);
 void drawImg(const std::vector<common::Detection>& results,
              cv::Mat& img,

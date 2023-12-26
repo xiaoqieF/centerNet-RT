@@ -20,3 +20,10 @@ add_library(botsort SHARED ${TRACK_SRC})
 add_executable(track track.cpp)
 target_link_libraries(track centernet)
 target_link_libraries(track botsort)
+
+FILE(GLOB IMG_ALIGN_SRC imagealignment/*.cpp)
+add_library(imgalign SHARED ${IMG_ALIGN_SRC})
+
+add_executable(det_keypoints imagealignment.cpp)
+target_link_libraries(det_keypoints imgalign)
+target_link_libraries(det_keypoints centernet)

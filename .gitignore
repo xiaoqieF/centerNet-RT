@@ -2,3 +2,4 @@
 build/**
 bin/**
 onnxmodel/*.trt
+onnxmodel/*.onnx

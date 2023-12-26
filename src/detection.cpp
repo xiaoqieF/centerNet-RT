@@ -19,35 +19,6 @@
 
 using namespace centernet;
 
-std::vector<float> prepareImage(cv::Mat& img) {
-    int channel = config::channel;
-    int input_w = config::input_w;
-    int input_h = config::input_h;
-    float scale = cv::min(float(input_w) / img.cols, float(input_h) / img.rows);
-    auto scale_size = cv::Size(img.cols * scale, img.rows * scale);
-    cv::Mat resized;
-    cv::resize(img, resized, scale_size, 0, 0);
-
-    cv::Mat cropped(input_h, input_w, CV_8UC3, cv::Scalar(114, 114, 114));
-    cv::Rect rect((input_w - scale_size.width) / 2, (input_h - scale_size.height) / 2,
-                  scale_size.width, scale_size.height);
-    resized.copyTo(cropped(rect));
-
-    cv::Mat img_float;
-    cropped.convertTo(img_float, CV_32FC3, 1. / 255);
-
-    std::vector<float> res(input_h * input_w * channel);
-    auto data = res.data();
-    int channel_len = input_h * input_w;
-    // HWC -> CHW
-    std::vector<cv::Mat> input_channels{
-        cv::Mat(input_h, input_w, CV_32FC1, data + channel_len * 2),
-        cv::Mat(input_h, input_w, CV_32FC1, data + channel_len * 1),
-        cv::Mat(input_h, input_w, CV_32FC1, data + channel_len * 0)};
-    cv::split(img_float, input_channels);
-    return res;
-}
-
 void printGpuInfo() {
     int dev = 0;
     cudaDeviceProp devProp;
@@ -70,7 +41,7 @@ int main(int argc, char* argv[]) {
 
     CenterEngine center(argv[1]);
     cv::Mat img = cv::imread(argv[2]);
-    auto input = prepareImage(img);
+    auto input = util::prepareImage(img);
 
     std::unique_ptr<float[]> output_data(new float[center.outputBufferSize()]);
     auto t0 = std::chrono::steady_clock::now();
