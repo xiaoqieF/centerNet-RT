@@ -41,21 +41,13 @@ int main(int argc, char* argv[]) {
 
     CenterEngine center(argv[1]);
     cv::Mat img = cv::imread(argv[2]);
-    auto input = util::prepareImage(img);
-
-    std::unique_ptr<float[]> output_data(new float[center.outputBufferSize()]);
     auto t0 = std::chrono::steady_clock::now();
-    center.infer(input.data(), output_data.get());
-    int num_det = static_cast<int>(output_data[0]);
-    std::cout << "det_num: " << num_det << std::endl;
-    std::vector<common::Detection> results(num_det);
-    memcpy(results.data(), &output_data[1], num_det * sizeof(common::Detection));
+    auto results = center.detect(img);
     for (auto& det : results) {
         std::cout << "class id: " << det.class_id << "; prob: " << det.prob
                   << "; bbox: x1: " << det.box.x1 << " y1: " << det.box.y1 << " x2: " << det.box.x2
                   << " y2: " << det.box.y2 << std::endl;
     }
-    util::correctBox(results, img.cols, img.rows);
     std::vector<cv::Scalar> color{cv::Scalar(255, 0, 0), cv::Scalar(0, 255, 0)};
     util::drawImg(results, img, color);
     auto t1 = std::chrono::steady_clock::now();

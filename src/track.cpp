@@ -85,6 +85,7 @@ int main(int argc, char* argv[]) {
         auto t1 = std::chrono::steady_clock::now();
         auto dur = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0);
         std::cout << "Detection Cost: " << dur.count() << " microseconds" << std::endl;
+
         auto track_res = botSort->track(results, img);
         auto t2 = std::chrono::steady_clock::now();
         auto dur1 = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1);
