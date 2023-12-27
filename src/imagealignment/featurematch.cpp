@@ -75,7 +75,7 @@ void FeatureMatch::match(const std::vector<common::Detection>& detections1,
         curr_pt.x += W;
 
         cv::Scalar color = cv::Scalar::all(rand() % 255);
-        color = cv::Scalar((int)color[0], (int)color[1], (int)color[2]);
+        color = cv::Scalar(rand() % 255, rand() % 255, rand() % 255);
 
         cv::line(matches_img, prev_pt, curr_pt, color, 1, cv::LineTypes::LINE_AA);
         cv::circle(matches_img, prev_pt, 4, color, -1);
