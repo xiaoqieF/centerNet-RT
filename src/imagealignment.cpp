@@ -83,6 +83,8 @@ int main(int argc, char* argv[]) {
 
     // imgalign::FeatureMatch sift(argv[2], argv[3], imgalign::FeatureMatch::ORB);
     // sift.match(results1, results2);
+
     // matchECC(img1, img2);
+
     matchSparseOptFlow(img1, img2);
 }

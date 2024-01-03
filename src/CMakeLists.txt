@@ -27,3 +27,6 @@ add_library(imgalign SHARED ${IMG_ALIGN_SRC})
 add_executable(det_keypoints imagealignment.cpp)
 target_link_libraries(det_keypoints imgalign)
 target_link_libraries(det_keypoints centernet)
+
+add_executable(move_det movedet.cpp)
+target_link_libraries(move_det ${OpenCV_LIBS})
